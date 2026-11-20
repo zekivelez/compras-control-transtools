@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GESTIÓN DE COMPRA & Carrito de Órdenes | TransTools Manufacturing</title>
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+    <!-- Pantalla de Login Corporativo -->
+    <div id="loginScreen" class="login-screen">
+        <form class="login-card" onsubmit="iniciarSesion(event)">
+            <div class="login-logo-box">
+                <img src="/Logo-azul.png" alt="TransTools" onerror="this.style.display='none'" />
+                <h2>GESTION DE COMPRA</h2>
+                <p>Ingresa con tu cuenta de Compras para acceder al panel</p>
+            </div>
+            <div id="loginErrorBox" class="login-error hidden"></div>
+            <div class="control-group">
+                <label for="loginUsername">Usuario / Correo</label>
+                <input type="text" id="loginUsername" placeholder="compras@transtools.com.mx" required autocomplete="username" />
+            </div>
+            <div class="control-group">
+                <label for="loginPassword">Contraseña</label>
+                <input type="password" id="loginPassword" placeholder="••••••••••••" required autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">
+                Iniciar Sesión
+            </button>
+        </form>
+    </div>
+
+    <!-- Top Header Corporativo -->
+    <header class="topbar">
+        <div class="topbar-brand">
+            <img src="/Logo-azul.png" alt="TransTools" class="brand-logo" onerror="this.style.display='none'" />
+            <div>
+                <h1>GESTION DE COMPRA</h1>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <div class="status-badge status-ok">
+                <span class="dot"></span>
+                <span id="userLoggedText">Monday Conectado</span>
+            </div>
+            <button class="btn btn-primary" onclick="sincronizarTodo()">Consultar</button>
+            <button class="btn btn-outline" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- KPIs de GESTIÓN DE COMPRA + CARRITO -->
+    <section class="kpi-bar" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="kpi-card">
+            <span class="kpi-label">ARTÍCULOS EN PANTALLA</span>
+            <strong class="kpi-value" id="kpiGesTotal">0</strong>
+            <span class="kpi-foot" id="kpiFamiliaActivaFoot">Todas las familias</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">ÓRDENES DE FABRICACIÓN EN VISTA</span>
+            <strong class="kpi-value" id="kpiGesOFs">0</strong>
+            <span class="kpi-foot">Vinculadas a los artículos</span>
+        </div>
+        <div class="kpi-card kpi-cart" onclick="openCartDrawer()">
+            <span class="kpi-label">🛒 ARTÍCULOS EN TU CARRITO</span>
+            <strong class="kpi-value" id="kpiCartItemsCount" style="color:#065F46;">0</strong>
+            <span class="kpi-foot" id="kpiCartProvsFoot" style="color:#047857;font-weight:600;">Haz clic para revisar tu
+                carrito</span>
+        </div>
+        <div class="kpi-card kpi-total" onclick="openCartDrawer()">
+            <span class="kpi-label">ÓRDENES DE COMPRA EN CARRITO</span>
+            <strong class="kpi-value" id="kpiCartOCsCount">0 OCs</strong>
+            <span class="kpi-foot">Agrupadas por Proveedor Seleccionado</span>
+        </div>
+    </section>
+
+    <!-- Filtros y Acciones en Lote de GESTIÓN DE COMPRA -->
+    <section class="controls-container">
+        <div class="filters-grid">
+            <div class="control-group">
+                <label for="selectGrupoGestion">1. Grupo en GESTIÓN DE COMPRA</label>
+                <select id="selectGrupoGestion" onchange="cargarGestionDeCompra()">
+                    <option value="group_mm7zxt4h">🟢 NUEVAS SOLICITUDES</option>
+                    <option value="group_mm8gqevc">🟢 COTIZANDO</option>
+                    <option value="group_mm8g7kr6">🟠 NEGOCIACION Y SELECCION</option>
+                    <option value="group_mm8g6k1f">🔴 BLOQUEADOS/ACLARACIONES</option>
+                    <option value="group_mm8g9gb2">🔵 LISTOS PARA GENERAR OC</option>
+                    <option value="group_mm8gy8gv">🟡 OC GENERADA</option>
+                    <option value="ALL">📋 TODOS LOS GRUPOS</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="selectFamiliaGestion">2. Filtrar por FAMILIA (Trabajar compra por Familia)</label>
+                <select id="selectFamiliaGestion" onchange="filtrarGestionLocal()">
+                    <option value="ALL">Todas las Familias</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="selectOFGestion">3. Filtrar por ORDEN DE FABRICACIÓN</label>
+                <select id="selectOFGestion" onchange="filtrarGestionLocal()">
+                    <option value="ALL">Todas las Órdenes de Fabricación</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="selectProvGestion">4. Filtrar por PROVEEDOR</label>
+                <select id="selectProvGestion" onchange="filtrarGestionLocal()">
+                    <option value="ALL">Todos los Proveedores</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="inputBusquedaGestion">5. Buscador Rápido (Name, SKU, Código Proveedor, OF)</label>
+                <input type="text" id="inputBusquedaGestion" placeholder="Buscar artículo, SKU, código..."
+                    oninput="filtrarGestionLocal()" />
+            </div>
+        </div>
+
+        <!-- Barra de Acciones y Carrito -->
+        <div class="batch-bar">
+            <div class="batch-left">
+                <span style="font-size:12.5px;color:#475569;">Marca la casilla <strong>✔</strong> en las filas completas
+                    para agregarlas directo a tu Carrito de Compra.</span>
+            </div>
+
+            <div class="batch-actions">
+                <button class="btn btn-success btn-lg" onclick="openCartDrawer()">
+                    🛒 Ver Carrito y Mandar a OC (<span id="btnCountInCart">0</span>)
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabla de GESTIÓN DE COMPRA -->
+    <main class="main-view">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="col-check sticky-col-check">
+                            <input type="checkbox" id="checkAllGestion"
+                                title="Agregar/Quitar todos los completos del carrito"
+                                onchange="toggleSelectAllGestion(this.checked)" />
+                        </th>
+                        <th class="sticky-col-name">NAME</th>
+                        <th>ARTICULOS</th>
+                        <th>LEAD TIME</th>
+                        <th>BOM DE FABRICACION</th>
+                        <th>ORDENES DE FABRICACION RELACIONADA</th>
+                        <th>SKU</th>
+                        <th>CODIGO PROVEEDOR</th>
+                        <th>FAMILIA</th>
+                        <th>SUBFAMILIA</th>
+                        <th>NATURALEZA</th>
+                        <th class="num-col highlight-col">CANTIDAD A COMPRAR</th>
+                        <th>UNIDAD</th>
+                        <th>PRIORIDAD</th>
+                        <th>FECHA REQUERIDA</th>
+                        <th>FECHA AUTORIZACIÓN</th>
+                        <th>SOLICITANTE RESPONSABLE</th>
+                        <th>FECHA DE INICIO DE COTIZACION</th>
+                        <th>PROVEEDOR PRINCIPAL</th>
+                        <th>OBSERVACIONES/PROBLEMA/ACLARACION</th>
+                        <th class="num-col highlight-col">PRECIO COTIZADO P1</th>
+                        <th>FECHA PROMESA DE ENTREGA P1</th>
+                        <th>COTIZACION P1</th>
+                        <th>PROVEEDOR ALTERNO</th>
+                        <th class="num-col highlight-col">PRECIO COTIZADO P2</th>
+                        <th>FECHA PROMESA DE ENTREGA P2</th>
+                        <th>COTIZACION P2</th>
+                        <th class="highlight-col">PROVEEDOR SELECCIONADO *</th>
+                        <th class="num-col">PRECIO CON IVA</th>
+                        <th class="num-col highlight-col">PRECIO NEGOCIADO *</th>
+                        <th class="highlight-col">MONEDA *</th>
+                        <th class="highlight-col">CONDICIONES DE PAGO *</th>
+                        <th class="highlight-col">FECHA COMPROMISO PROVEEDOR *</th>
+                        <th class="highlight-col">AUTORIZACION DE COMPRA *</th>
+                        <th>JUSTIFICACION DE COMPRA</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyGestion">
+                    <tr>
+                        <td colspan="35" class="empty-state">Cargando artículos de GESTIÓN DE COMPRA...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- =================================================================== -->
+    <!-- CARRITO DE COMPRA (DRAWER DESLIZABLE DE REVISIÓN Y CONFIRMACIÓN)    -->
+    <!-- =================================================================== -->
+    <div id="cartDrawerBackdrop" class="cart-backdrop hidden">
+        <div class="cart-drawer">
+            <div class="cart-header">
+                <div>
+                    <h2>🛒 CARRITO DE COMPRA — REVISIÓN ANTES DE ENVIAR A ÓRDENES DE COMPRA</h2>
+                    <p>Revisa con total seguridad los artículos que fuiste agregando por Familia, agrupados por
+                        Proveedor Seleccionado y Orden de Fabricación.</p>
+                </div>
+                <button class="btn-close" onclick="closeCartDrawer()">✕</button>
+            </div>
+
+            <div class="cart-body" id="cartDrawerBody">
+                <!-- Se llena dinámicamente con las tarjetas por proveedor -->
+            </div>
+
+            <div class="cart-footer">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="btn btn-danger btn-sm" onclick="vaciarCarrito()">🗑️ Vaciar Todo el Carrito</button>
+                    <span id="cartFooterSummary" style="font-weight:700;color:#1E293B;">0 artículos en 0 Órdenes de
+                        Compra</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:12px;color:#64748B;">💡 Envía cada Proveedor con su propio botón individual
+                        arriba para no mezclar datos</span>
+                    <button class="btn btn-outline" onclick="closeCartDrawer()">Seguir Agregando Artículos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input oculto para subir archivo a COTIZACION P1 o COTIZACION P2 -->
+    <input type="file" id="hiddenFileInput" class="hidden" onchange="onFileSelectedForUpload(event)" />
+
+    <!-- Modal de Resultado -->
+    <div id="modalResultados" class="modal-backdrop hidden">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3 id="modalResultadosTitle">Carrito Enviado a Órdenes de Compra en Monday.com</h3>
+                <button class="btn-close" onclick="closeResultadosModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalResultadosBody"></div>
+            <div class="modal-footer">
+                <a href="https://transtools-team.monday.com/boards/18436902791" target="_blank"
+                    class="btn btn-secondary" style="text-decoration:none;">
+                    Ver GESTIÓN DE COMPRA
+                </a>
+                <a href="https://transtools-team.monday.com/boards/18435123821" target="_blank"
+                    class="btn btn-secondary" style="text-decoration:none;">
+                    Ver ÓRDENES DE COMPRA
+                </a>
+                <button class="btn btn-primary" onclick="closeResultadosModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Carga -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner-box">
+            <div class="spinner"></div>
+            <p id="loadingMessage">Consultando Monday.com...</p>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+
+</html>
