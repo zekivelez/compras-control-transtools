@@ -116,7 +116,16 @@ export default async function handler(req, res) {
     }
 
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    const pathname = parsedUrl.pathname;
+    let pathname = parsedUrl.pathname;
+
+    // Compatibilidad con Vercel rewrites (cuando Vercel reescribe /api/login -> /api/index.js?__path=login)
+    const rewritePath = parsedUrl.searchParams.get('__path') || req.query?.__path;
+    if (rewritePath) {
+        const cleanPath = Array.isArray(rewritePath) ? rewritePath.join('/') : String(rewritePath).replace(/^\/+/, '');
+        pathname = `/api/${cleanPath}`;
+    } else if (req.headers['x-matched-path'] && pathname === '/api/index.js') {
+        pathname = req.headers['x-matched-path'];
+    }
 
     try {
         // 1. Login de usuario
