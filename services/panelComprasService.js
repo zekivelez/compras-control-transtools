@@ -247,7 +247,9 @@ export async function getItemsGestionDeCompra({ fetchMonday, groupId = "ALL" }) 
         const provSelIds = getLinkedIds(getCol("board_relation_mm8fcme"));
         const proveedorSeleccionadoNombre = extractColText(getCol("board_relation_mm8fcme")) || "";
         const proveedorSeleccionadoId = provSelIds[0] || "";
-        // 30. lookup_mm8fmn8y (PRECIO CON IVA)
+        // 30. lookup_mm9dq60t (PRECIO SIN IVA)
+        const precioSinIva = extractColText(getCol("lookup_mm9dq60t")) || "-";
+        // 30b. lookup_mm8fmn8y (PRECIO CON IVA)
         const precioConIva = extractColText(getCol("lookup_mm8fmn8y")) || "-";
         // 31. numeric_mm8fwa7d (PRECIO NEGOCIADO)
         const precioNegociado = extractColNumber(getCol("numeric_mm8fwa7d"), 0);
@@ -307,6 +309,7 @@ export async function getItemsGestionDeCompra({ fetchMonday, groupId = "ALL" }) 
             cotizacionP2Url,
             proveedorSeleccionadoId,
             proveedorSeleccionadoNombre,
+            precioSinIva,
             precioConIva,
             precioNegociado,
             moneda,

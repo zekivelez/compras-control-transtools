@@ -510,7 +510,9 @@ function renderizarTablaGestion() {
                 <input type="checkbox" ${inCart ? 'checked' : ''} onchange="onToggleGestion('${it.gestionItemId}', this.checked, this)" title="Marcar para agregar al Carrito" />
             </td>
             <!-- 1. name: Name -->
-            <td class="sticky-col-name"><div style="font-weight:700;min-width:220px;">${escapeHtml(it.name)}</div></td>
+            <td class="sticky-col-name"><div style="font-weight:700;">${escapeHtml(it.name)}</div></td>
+            <!-- 1b. lookup_mm9dq60t: PRECIO SIN IVA (Fijo junto a NAME) -->
+            <td class="num-col sticky-col-precio">${it.precioSinIva && it.precioSinIva !== '-' && !isNaN(Number(String(it.precioSinIva).replace(/[^0-9.-]/g, ''))) ? fmtMoney(Number(String(it.precioSinIva).replace(/[^0-9.-]/g, ''))) : escapeHtml(it.precioSinIva || '-')}</td>
             <!-- 2. board_relation_mm7x4419: ARTICULOS -->
             <td><div style="min-width:170px;">${escapeHtml(it.articuloNombre || '-')}</div></td>
             <!-- 3. lookup_mm93ggeq: Lead Time -->

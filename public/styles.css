@@ -431,7 +431,7 @@ body {
     text-align: center;
 }
 
-/* Columnas fijas (Sticky) a la izquierda: Checkbox + NAME */
+/* Columnas fijas (Sticky) a la izquierda: Checkbox + NAME + PRECIO SIN IVA */
 .data-table thead th.sticky-col-check {
     position: sticky;
     left: 0;
@@ -442,6 +442,19 @@ body {
 .data-table thead th.sticky-col-name {
     position: sticky;
     left: 36px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    z-index: 25;
+    background: var(--primary-dark);
+}
+
+.data-table thead th.sticky-col-precio {
+    position: sticky;
+    left: 276px;
+    width: 115px;
+    min-width: 115px;
+    max-width: 115px;
     z-index: 25;
     background: var(--primary-dark);
     box-shadow: 3px 0 6px rgba(0, 0, 0, 0.14);
@@ -457,30 +470,50 @@ body {
 .data-table tbody td.sticky-col-name {
     position: sticky;
     left: 36px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    z-index: 15;
+    background: var(--white);
+    border-right: 1px solid #E2E8F0;
+}
+
+.data-table tbody td.sticky-col-precio {
+    position: sticky;
+    left: 276px;
+    width: 115px;
+    min-width: 115px;
+    max-width: 115px;
     z-index: 15;
     background: var(--white);
     box-shadow: 3px 0 6px rgba(0, 0, 0, 0.08);
     border-right: 1px solid #CBD5E1;
+    font-weight: 700;
+    color: var(--primary-dark);
 }
 
 /* Conservar el color de fondo correcto cuando la fila es Acero, Carrito o Hover */
 .data-table tbody tr:hover td.sticky-col-check,
-.data-table tbody tr:hover td.sticky-col-name {
+.data-table tbody tr:hover td.sticky-col-name,
+.data-table tbody tr:hover td.sticky-col-precio {
     background-color: #F1F5F9;
 }
 
 .data-table tbody tr.row-acero td.sticky-col-check,
-.data-table tbody tr.row-acero td.sticky-col-name {
+.data-table tbody tr.row-acero td.sticky-col-name,
+.data-table tbody tr.row-acero td.sticky-col-precio {
     background-color: #FFFBEB;
 }
 
 .data-table tbody tr.row-acero:hover td.sticky-col-check,
-.data-table tbody tr.row-acero:hover td.sticky-col-name {
+.data-table tbody tr.row-acero:hover td.sticky-col-name,
+.data-table tbody tr.row-acero:hover td.sticky-col-precio {
     background-color: #FEF3C7;
 }
 
 .data-table tbody tr.row-in-cart td.sticky-col-check,
-.data-table tbody tr.row-in-cart td.sticky-col-name {
+.data-table tbody tr.row-in-cart td.sticky-col-name,
+.data-table tbody tr.row-in-cart td.sticky-col-precio {
     background-color: #ECFDF5 !important;
 }
 
